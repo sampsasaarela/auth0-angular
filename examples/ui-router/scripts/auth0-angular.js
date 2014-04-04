@@ -47,10 +47,9 @@
       'ngCookies'
     ]);
   var AUTH_EVENTS = {
-      forbidden: 'auth:FORBIDDEN',
-      loginSuccess: 'auth:LOGIN_SUCCESS',
-      loginFailed: 'auth:LOGIN_FAILED',
-      logout: 'auth:LOGOUT'
+      loginSuccess: 'LOGIN_SUCCESS',
+      loginFailed: 'LOGIN_FAILED',
+      logout: 'LOGOUT'
     };
   auth0.constant('AUTH_EVENTS', AUTH_EVENTS);
   function Auth0Wrapper(auth0Lib, $cookies, $rootScope, $safeApply, $q, urlBase64Decode) {
@@ -144,7 +143,8 @@
   };
   Auth0Wrapper.prototype.signin = function (options) {
     options = options || {};
-    var callback = function (err, profile, id_token, access_token, state) {
+    var that = this;
+    that.auth0Lib.signin(options, function (err, profile, id_token, access_token, state) {
       if (err) {
         that.$rootScope.$broadcast(AUTH_EVENTS.loginFailed, profile);
         return;
@@ -153,14 +153,7 @@
       that._deserialize();
       that.$rootScope.$broadcast(AUTH_EVENTS.loginSuccess, profile);
       that.$rootScope.$apply();
-    };
-    var that = this;
-    // In Auth0 widget the callback to signin is executed when the widget ends
-    // loading. In that case, we should not broadcast any event.
-    if (typeof Auth0Widget !== 'undefined' && that.auth0Lib instanceof Auth0Widget) {
-      callback = null;
-    }
-    that.auth0Lib.signin(options, callback);
+    });
   };
   Auth0Wrapper.prototype.signout = function () {
     this._serialize(undefined, undefined, undefined);
@@ -270,8 +263,7 @@
     'auth',
     '$rootScope',
     '$q',
-    'AUTH_EVENTS',
-    function (auth, $rootScope, $q, AUTH_EVENTS) {
+    function (auth, $rootScope, $q) {
       return {
         request: function (config) {
           config.headers = config.headers || {};
@@ -283,7 +275,7 @@
         responseError: function (response) {
           // handle the case where the user is not authenticated
           if (response.status === 401) {
-            $rootScope.$broadcast(AUTH_EVENTS.forbidden, response);
+            $rootScope.$broadcast('auth:forbidden', response);
           }
           return response || $q.when(response);
         }

@@ -22,7 +22,7 @@ myApp.run(function ($rootScope, $state, auth, AUTH_EVENTS) {
     if (!result) {
       e.preventDefault();
 
-      // Optionally set option.notify to false if you don't want 
+      // Optionally set option.notify to false if you don't want
       // to retrigger another $stateChangeStart event
       $state.go('login', {});
       return;
@@ -51,6 +51,11 @@ myApp.config(function($stateProvider, $urlRouterProvider, $httpProvider, authPro
     templateUrl: 'views/login.html',
     controller: 'LoginCtrl'
   })
+  .state('callback', {
+    url: '/callback',
+    templateUrl: 'views/callback.html',
+    controller: 'CallbackCtrl'
+  })
   .state('root', {
     url: '/',
     templateUrl: 'views/root.html',
@@ -62,7 +67,7 @@ myApp.config(function($stateProvider, $urlRouterProvider, $httpProvider, authPro
     domain: 'contoso.auth0.com',
     clientID: 'DyG9nCwIEofSy66QM3oo5xU6NFs3TmvT',
     // TODO Set this to your callbackURL, for instance http://localhost:1337/examples/widget/
-    callbackURL: document.location.href
+    callbackURL: document.location.href.toString().replace(/\/login$/,'/callback')
   });
   $httpProvider.interceptors.push('authInterceptor');
 });

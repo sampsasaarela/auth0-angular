@@ -18,10 +18,12 @@ myApp.controller('LoginCtrl', function (auth, $scope, $cookies, $state) {
       username: $scope.user,
       password: $scope.pass
     });
+    $state.go('callback');
   };
 
   $scope.doGoogleAuthWithPopup = function () {
     auth.signin({popup: true, connection: 'google-oauth2'});
+    $state.go('callback');
   };
 
   $scope.doGoogleAuthWithRedirect = function () {

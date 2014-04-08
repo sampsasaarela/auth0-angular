@@ -37,7 +37,8 @@
     forbidden: 'auth:FORBIDDEN',
     loginSuccess: 'auth:LOGIN_SUCCESS',
     loginFailed: 'auth:LOGIN_FAILED',
-    logout: 'auth:LOGOUT'
+    logout: 'auth:LOGOUT',
+    redirectEnded: 'auth:REDIRECT_ENDED'
   };
 
   auth0.constant('AUTH_EVENTS', AUTH_EVENTS);
@@ -281,6 +282,7 @@
         });
       } else {
         auth._deserialize();
+        $rootScope.$broadcast(AUTH_EVENTS.redirectEnded);
       }
     };
   });

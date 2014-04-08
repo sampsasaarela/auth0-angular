@@ -1,19 +1,40 @@
 var myApp = angular.module('myApp', [
-  'ui.router', 'auth0', 'authInterceptor'
+  'ui.router', 'auth0-auth', 'authInterceptor'
 ]);
 
-myApp.run(function ($rootScope, $state, auth, AUTH_EVENTS) {
+myApp.run(function ($rootScope, $state, auth, AUTH_EVENTS, $timeout, parseHash) {
+  var onRedirect = true;
+  $state.go('callback');
+
   $rootScope.$on(AUTH_EVENTS.loginSuccess, function () {
     // TODO Handle when login succeeds
+    onRedirect = false;
     $state.go('root');
   });
 
   $rootScope.$on(AUTH_EVENTS.loginFailed, function () {
     // TODO Handle when login fails
+    onRedirect = false;
     $state.go('login');
   });
+  
+  $rootScope.$on(AUTH_EVENTS.redirectEnded, function () {
+    // TODO Handle when redirect ends
+    onRedirect = false;
+    $state.go('root');
+  });
 
+  // This needs to happen after we register the events in order to
+  // receive the events.
+  parseHash();
+  
   $rootScope.$on('$stateChangeStart', function(e, to) {
+    if (onRedirect && to.name === 'login') {
+      // When on redirect, prevent login as it should display 
+      // the callback page
+      e.preventDefault();
+      return;
+    }
     if ( !to || !to.data || !angular.isFunction(to.data.rule)) {
       return;
     }
@@ -30,6 +51,7 @@ myApp.run(function ($rootScope, $state, auth, AUTH_EVENTS) {
 
     $state.go(to, {}, {notify: false});
   });
+
 });
 
 function isAuthenticated(auth) { return auth.isAuthenticated; }

@@ -162,6 +162,7 @@ module.exports = function (grunt) {
   });
 
   grunt.registerTask('build', ['clean', 'jshint', 'ngmin', 'concat', 'uglify', 'karma', 'copy']);
+  grunt.registerTask('test', ['build', 'karma']);
   grunt.registerTask('cdn', ['build', 's3', 'maxcdn']);
   grunt.registerTask('default', ['build', 'watch']);
 
